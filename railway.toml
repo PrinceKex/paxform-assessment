@@ -16,8 +16,8 @@
 
 [deploy]
   startCommand = "docker-compose up -d"
-  healthcheckPath = "/"
-  healthcheckTimeout = 100
+  healthcheckPath = "/health"
+  healthcheckTimeout = 30
   restartPolicyType = "on_failure"
   restartPolicyMaxRetries = 3
 

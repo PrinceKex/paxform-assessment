@@ -1,59 +1,35 @@
-[build]
-  builder = "NIXPACKS"
+# This is a monorepo configuration for Railway
+# Each service will be built and deployed separately
 
-# Frontend service
+# Frontend service (React)
 [frontend]
 name = "paxform-frontend"
 root = "frontend"
 
+# Use Nixpacks to build the frontend
 [frontend.build]
-builder = "NIXPACKS"
-
-# Tell Nixpacks how to build the frontend
-[frontend.build.nixpacks]
-  [frontend.build.nixpacks.phases.setup]
-  nixPkgs = ["nodejs"]
-  
-  [frontend.build.nixpacks.phases.install]
-  cmds = ["npm ci"]
-  
-  [frontend.build.nixpacks.phases.build]
-  cmds = ["npm run build"]
-  
-  [frontend.build.nixpacks.start]
-  cmd = "npx serve --single --listen $PORT build"
+  builder = "nixpacks"
+  buildCommand = "npm install && npm run build"
+  startCommand = "npx serve -s build -l $PORT"
 
 [frontend.deploy]
-healthcheckPath = "/health"
-healthcheckTimeout = 30
+  healthcheckPath = "/health"
+  healthcheckTimeout = 30
 
-# Backend service
+# Backend service (Laravel)
 [backend]
 name = "paxform-backend"
 root = "backend"
 
+# Use Nixpacks to build the backend
 [backend.build]
-builder = "NIXPACKS"
-
-# Tell Nixpacks how to build the backend
-[backend.build.nixpacks]
-  [backend.build.nixpacks.phases.setup]
-  nixPkgs = ["php82", "php82Extensions.composer", "php82Extensions.pdo_mysql", "php82Extensions.mbstring", "php82Extensions.gd"]
-  
-  [backend.build.nixpacks.phases.install]
-  cmds = [
-    "composer install --no-dev --optimize-autoloader",
-    "php artisan config:cache",
-    "php artisan route:cache",
-    "php artisan view:cache"
-  ]
-  
-  [backend.build.nixpacks.start]
-  cmd = "php artisan serve --host 0.0.0.0 --port $PORT"
+  builder = "nixpacks"
+  buildCommand = "composer install --no-dev --optimize-autoloader && php artisan config:cache && php artisan route:cache && php artisan view:cache"
+  startCommand = "php artisan serve --host 0.0.0.0 --port $PORT"
 
 [backend.deploy]
-healthcheckPath = "/api/health"
-healthcheckTimeout = 30
+  healthcheckPath = "/api/health"
+  healthcheckTimeout = 30
 
 # Environment variables
 [environments]

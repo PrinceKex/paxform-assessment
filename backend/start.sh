@@ -1,9 +1,15 @@
 #!/bin/sh
 set -e
 
-# Set default values if not provided
-DB_HOST=${DB_HOST:-${RAILWAY_MYSQLHOST:-mysql}}
-DB_PORT=${DB_PORT:-${RAILWAY_MYSQLPORT:-3306}}
+# Debug: Print all environment variables
+echo "=== Environment Variables ==="
+printenv | sort
+echo "==========================="
+
+# Set database connection details from Railway environment variables
+# Railway provides MYSQLHOST, MYSQLPORT, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE
+DB_HOST=${MYSQLHOST:-${DB_HOST:-mysql}}
+DB_PORT=${MYSQLPORT:-${DB_PORT:-3306}}
 
 # Wait for the database to be ready
 echo "Waiting for database at $DB_HOST:$DB_PORT..."

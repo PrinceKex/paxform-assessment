@@ -1,6 +1,6 @@
 # Root configuration
 [build]
-  builder = "DOCKER"
+  builder = "DOCKERFILE"
   dockerfilePath = "backend/Dockerfile"
 
 # Frontend service
@@ -8,7 +8,7 @@
 name = "paxform-frontend"
 
 [frontend.build]
-  builder = "DOCKER"
+  builder = "DOCKERFILE"
   dockerfilePath = "frontend/Dockerfile"
 
 [frontend.deploy]
@@ -21,7 +21,7 @@ name = "paxform-frontend"
 name = "paxform-backend"
 
 [backend.build]
-  builder = "DOCKER"
+  builder = "DOCKERFILE"
   dockerfilePath = "backend/Dockerfile"
 
 [backend.deploy]

@@ -18,7 +18,13 @@ DB_HOST=${MYSQLHOST:-mysql}
 DB_PORT=${MYSQLPORT:-3306}
 DB_DATABASE=${MYSQLDATABASE:-paxform}
 DB_USERNAME=${MYSQLUSER:-root}
-DB_PASSWORD=${MYSQLPASSWORD:-}
+DB_PASSWORD=${MYSQLPASSWORD}
+
+# Verify we have a password
+if [ -z "$DB_PASSWORD" ]; then
+    echo "ERROR: Database password (MYSQLPASSWORD) is not set"
+    exit 1
+fi
 
 # Debug: Print database connection info (without exposing password)
 echo "=== Database Connection ==="
@@ -36,15 +42,18 @@ echo "MYSQLDATABASE: ${MYSQLDATABASE:-Not set, using default paxform}"
 cat > .env <<EOL
 APP_NAME="PaxForm"
 APP_ENV=production
-APP_DEBUG=false
+APP_DEBUG=true
 APP_URL=
 
 DB_CONNECTION=$DB_CONNECTION
-DB_HOST=$DB_HOST
+DB_HOST="$DB_HOST"
 DB_PORT=$DB_PORT
-DB_DATABASE=$DB_DATABASE
-DB_USERNAME=$DB_USERNAME
-DB_PASSWORD=$DB_PASSWORD
+DB_DATABASE="$DB_DATABASE"
+DB_USERNAME="$DB_USERNAME"
+DB_PASSWORD="$DB_PASSWORD"
+
+# Force database URL for Laravel to use the correct credentials
+DATABASE_URL=mysql://$DB_USERNAME:$(echo "$DB_PASSWORD" | sed 's/&/\&/g')@$DB_HOST:$DB_PORT/$DB_DATABASE
 
 # Other necessary Laravel environment variables
 LOG_CHANNEL=stderr
@@ -61,8 +70,21 @@ EOL
 
 # Debug: Verify .env was created
 echo "=== .env file created/updated ==="
-cat .env | grep -v 'DB_PASSWORD'  # Show .env content but hide password
+cat .env | grep -v 'PASSWORD'  # Show .env content but hide passwords
 echo "================================"
+
+# Verify the database is accessible
+echo "Testing database connection..."
+if ! mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT 1" "$DB_DATABASE" 2>/dev/null; then
+    echo "ERROR: Failed to connect to the database"
+    echo "Connection details:"
+    echo "Host: $DB_HOST"
+    echo "Port: $DB_PORT"
+    echo "Database: $DB_DATABASE"
+    echo "Username: $DB_USERNAME"
+    echo "Password: ${DB_PASSWORD:+[set]}${DB_PASSWORD:+ but not shown for security}"
+    exit 1
+fi
 echo "=========================="
 
 # Export the variables for Laravel to use

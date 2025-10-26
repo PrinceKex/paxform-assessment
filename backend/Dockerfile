@@ -26,12 +26,19 @@ WORKDIR /var/www
 # Copy existing application directory contents
 COPY . /var/www
 
-# Install dependencies
-RUN composer install --no-interaction --no-scripts --prefer-dist --optimize-autoloader
+# Install production dependencies
+RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader
 
-# Set permissions
+# Set proper permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# Expose port 9000 and start php-fpm server
-EXPOSE 9000
+# Set entrypoint
+COPY docker/entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
+
+# Start PHP-FPM
 CMD ["php-fpm"]
+
+# Expose port 9000
+EXPOSE 9000

@@ -1,24 +1,30 @@
-# Railway configuration file
-[build]
-  builder = "nixpacks"
-  buildCommand = "cd frontend && npm install && npm run build"
-  
-  [build.nixpacksPlan]
-  [build.nixpacksPlan.phases.setup]
-  nixPkgs = ["nodejs_20", "yarn"]
-  
-  [build.nixpacksPlan.phases.install]
-  cmds = ["cd frontend && npm install"]
-  
-  [build.nixpacksPlan.phases.build]
-  cmds = ["cd frontend && npm run build"]
+# Railway configuration for monorepo
 
-[deploy]
-  startCommand = "nginx -g 'daemon off;'"
-  healthcheckPath = "/health"
-  healthcheckTimeout = 30
-  restartPolicyType = "on_failure"
-  restartPolicyMaxRetries = 3
+# Frontend service
+[frontend]
+name = "paxform-frontend"
+root = "frontend"
+
+[frontend.build]
+builder = "nixpacks"
+
+[frontend.deploy]
+startCommand = "/usr/sbin/nginx -g 'daemon off;'"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+
+# Backend service
+[backend]
+name = "paxform-backend"
+root = "backend"
+
+[backend.build]
+builder = "nixpacks"
+
+[backend.deploy]
+startCommand = "php-fpm"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30
 
 # Environment variables
 [environments]

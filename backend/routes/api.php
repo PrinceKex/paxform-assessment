@@ -17,6 +17,10 @@ use App\Http\Controllers\Api\FormController;
 */
 
 // Public routes
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok']);
+});
+
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 

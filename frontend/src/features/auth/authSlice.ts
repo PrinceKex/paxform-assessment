@@ -30,7 +30,7 @@ export const register = createAsyncThunk(
   'auth/register',
   async (userData: { name: string; email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:8000/api/auth/register', userData);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, userData);
       localStorage.setItem('token', response.data.token);
       return response.data;
     } catch (error: unknown) {
@@ -46,7 +46,7 @@ export const login = createAsyncThunk(
   'auth/login',
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:8000/api/auth/login', credentials);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, credentials);
       localStorage.setItem('token', response.data.token);
       return response.data;
     } catch (error: unknown) {

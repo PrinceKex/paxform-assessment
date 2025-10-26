@@ -1,7 +1,6 @@
-# Root configuration
+# Root configuration (not used directly by services)
 [build]
-  builder = "DOCKERFILE"
-  dockerfilePath = "backend/Dockerfile"
+  builder = "NIXPACKS"
 
 # Frontend service
 [frontend]
@@ -19,15 +18,11 @@ name = "paxform-frontend"
 # Backend service
 [backend]
 name = "paxform-backend"
-root = "backend"  # Set build context to backend directory
 
 [backend.build]
   builder = "DOCKERFILE"
-  dockerfilePath = "Dockerfile"  # Relative to backend directory
-
-[backend.deploy]
-  startCommand = "sh /var/www/start.sh"
-  healthcheckPath = "/api/health"
+  context = "."  # Set context to project root
+  dockerfilePath = "backend/Dockerfile"  # Path to Dockerfile from project root
   healthcheckTimeout = 30
 
 # Environment variables

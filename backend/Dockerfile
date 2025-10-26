@@ -31,11 +31,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Add debug commands to check files
-RUN ls -la /var/www
-
-# Copy all files from the build context
-COPY . .
+# Copy backend files from project root context
+COPY backend/ .
 
 # Debug: Verify files were copied correctly
 RUN ls -la /var/www

@@ -8,6 +8,16 @@ root = "frontend"
 [frontend.build]
 builder = "nixpacks"
 
+[frontend.build.nixpacks]
+  [frontend.build.nixpacks.phases.setup]
+  nixPkgs = ["nodejs_20"]
+
+  [frontend.build.nixpacks.phases.install]
+  cmds = ["npm install"]
+
+  [frontend.build.nixpacks.phases.build]
+  cmds = ["npm run build"]
+
 [frontend.deploy]
 startCommand = "/usr/sbin/nginx -g 'daemon off;'"
 healthcheckPath = "/health"
@@ -20,6 +30,16 @@ root = "backend"
 
 [backend.build]
 builder = "nixpacks"
+
+[backend.build.nixpacks]
+  [backend.build.nixpacks.phases.setup]
+  nixPkgs = ["php82", "php82Extensions.composer"]
+
+  [backend.build.nixpacks.phases.install]
+  cmds = ["composer install --no-dev --optimize-autoloader"]
+
+  [backend.build.nixpacks.phases.build]
+  cmds = ["php artisan config:cache", "php artisan route:cache", "php artisan view:cache"]
 
 [backend.deploy]
 startCommand = "php-fpm"

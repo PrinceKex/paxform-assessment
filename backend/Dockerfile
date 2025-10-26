@@ -31,11 +31,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Copy application files
-COPY . .
+# Copy only composer files first to leverage Docker cache
+COPY composer.json composer.lock ./
 
 # Install production dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts
+
+# Copy the rest of the application
+COPY . .
 
 # Set file permissions
 RUN chown -R www-data:www-data /var/www \

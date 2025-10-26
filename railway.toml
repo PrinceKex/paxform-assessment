@@ -39,15 +39,7 @@ healthcheckTimeout = 30
     APP_DEBUG = "false"
     APP_URL = ""  # Will be set by Railway
     
-    # Database variables (will be provided by Railway)
-    DB_CONNECTION = "mysql"
-    DB_HOST = ""
-    DB_PORT = ""
-    DB_DATABASE = ""
-    DB_USERNAME = ""
-    DB_PASSWORD = ""
-    
-    # Database configuration
+    # Database configuration (provided by Railway)
     DB_CONNECTION = "mysql"
     DB_HOST = "${RAILWAY_MYSQLHOST}"
     DB_PORT = "${RAILWAY_MYSQLPORT}"

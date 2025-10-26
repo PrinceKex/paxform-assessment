@@ -1,4 +1,4 @@
-# Railway configuration for monorepo
+# Railway configuration for monorepo with Dockerfiles
 
 # Frontend service
 [frontend]
@@ -6,17 +6,8 @@ name = "paxform-frontend"
 root = "frontend"
 
 [frontend.build]
-builder = "nixpacks"
-
-[frontend.build.nixpacks]
-  [frontend.build.nixpacks.phases.setup]
-  nixPkgs = ["nodejs_20"]
-
-  [frontend.build.nixpacks.phases.install]
-  cmds = ["npm install"]
-
-  [frontend.build.nixpacks.phases.build]
-  cmds = ["npm run build"]
+builder = "DOCKERFILE"
+dockerfilePath = "frontend/Dockerfile"
 
 [frontend.deploy]
 startCommand = "/usr/sbin/nginx -g 'daemon off;'"
@@ -29,20 +20,11 @@ name = "paxform-backend"
 root = "backend"
 
 [backend.build]
-builder = "nixpacks"
-
-[backend.build.nixpacks]
-  [backend.build.nixpacks.phases.setup]
-  nixPkgs = ["php82", "php82Extensions.composer"]
-
-  [backend.build.nixpacks.phases.install]
-  cmds = ["composer install --no-dev --optimize-autoloader"]
-
-  [backend.build.nixpacks.phases.build]
-  cmds = ["php artisan config:cache", "php artisan route:cache", "php artisan view:cache"]
+builder = "DOCKERFILE"
+dockerfilePath = "backend/Dockerfile"
 
 [backend.deploy]
-startCommand = "php-fpm"
+startCommand = "sh /var/www/start.sh"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 30
 

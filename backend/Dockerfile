@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    libzip-dev
+    libzip-dev \
+    netcat-openbsd  # For database connection check
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -32,13 +33,16 @@ RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoload
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# Set entrypoint
-COPY docker/entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/entrypoint.sh
-ENTRYPOINT ["entrypoint.sh"]
+# Copy start script and make it executable
+COPY start.sh /var/www/
+RUN chmod +x /var/www/start.sh
 
-# Start PHP-FPM
-CMD ["php-fpm"]
+# Set working directory and permissions
+WORKDIR /var/www
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/start.sh
+
+# Start the application
+CMD ["/var/www/start.sh"]
 
 # Expose port 9000
 EXPOSE 9000

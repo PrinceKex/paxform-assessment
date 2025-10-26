@@ -20,7 +20,7 @@ DB_DATABASE=${MYSQLDATABASE:-paxform}
 DB_USERNAME=${MYSQLUSER:-root}
 DB_PASSWORD=${MYSQLPASSWORD:-}
 
-# Debug: Print database connection info
+# Debug: Print database connection info (without exposing password)
 echo "=== Database Connection ==="
 echo "DB_CONNECTION: $DB_CONNECTION"
 echo "DB_HOST: $DB_HOST"
@@ -31,6 +31,38 @@ echo "MYSQLHOST: ${MYSQLHOST:-Not set}"
 echo "MYSQLPORT: ${MYSQLPORT:-Not set, using default 3306}"
 echo "MYSQLUSER: ${MYSQLUSER:-Not set, using default root}"
 echo "MYSQLDATABASE: ${MYSQLDATABASE:-Not set, using default paxform}"
+
+# Create or update Laravel .env file with database configuration
+cat > .env <<EOL
+APP_NAME="PaxForm"
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=
+
+DB_CONNECTION=$DB_CONNECTION
+DB_HOST=$DB_HOST
+DB_PORT=$DB_PORT
+DB_DATABASE=$DB_DATABASE
+DB_USERNAME=$DB_USERNAME
+DB_PASSWORD=$DB_PASSWORD
+
+# Other necessary Laravel environment variables
+LOG_CHANNEL=stderr
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+
+# Cache and session configuration
+CACHE_DRIVER=file
+QUEUE_CONNECTION=sync
+
+# Application key
+APP_KEY=base64:$(head -c 32 /dev/urandom | base64)
+EOL
+
+# Debug: Verify .env was created
+echo "=== .env file created/updated ==="
+cat .env | grep -v 'DB_PASSWORD'  # Show .env content but hide password
+echo "================================"
 echo "=========================="
 
 # Export the variables for Laravel to use

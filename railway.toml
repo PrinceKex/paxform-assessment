@@ -1,6 +1,8 @@
 # Root configuration (not used directly by services)
 [build]
-  builder = "NIXPACKS"
+  builder = "DOCKERFILE"
+  dockerfilePath = "backend/Dockerfile"
+  context = "."
 
 # Frontend service
 [frontend]
@@ -9,6 +11,7 @@ name = "paxform-frontend"
 [frontend.build]
   builder = "DOCKERFILE"
   dockerfilePath = "frontend/Dockerfile"
+  context = "."
 
 [frontend.deploy]
   startCommand = "/usr/sbin/nginx -g 'daemon off;'"
@@ -21,8 +24,12 @@ name = "paxform-backend"
 
 [backend.build]
   builder = "DOCKERFILE"
-  context = "."  # Set context to project root
-  dockerfilePath = "backend/Dockerfile"  # Path to Dockerfile from project root
+  dockerfilePath = "backend/Dockerfile"
+  context = "."
+
+[backend.deploy]
+  startCommand = "sh /var/www/start.sh"
+  healthcheckPath = "/api/health"
   healthcheckTimeout = 30
 
 # Environment variables

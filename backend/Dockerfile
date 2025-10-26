@@ -31,8 +31,15 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Copy all files from the backend directory (build context)
+# Add debug commands to check files
+RUN ls -la /var/www
+
+# Copy all files from the build context
 COPY . .
+
+# Debug: Verify files were copied correctly
+RUN ls -la /var/www
+RUN if [ -f composer.json ]; then echo "composer.json found"; else echo "composer.json NOT FOUND"; exit 1; fi
 
 # Install production dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts

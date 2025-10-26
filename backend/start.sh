@@ -2,8 +2,10 @@
 set -e
 
 # Debug: Print current directory and files
+echo "=== Current Directory ==="
 pwd
 ls -la
+echo "========================"
 
 # Debug: Print environment variables
 echo "=== Environment Variables ==="
@@ -13,11 +15,22 @@ echo "==========================="
 # Set database connection details
 # First try Railway's default MySQL variables, then fall back to standard ones
 DB_HOST=${MYSQLHOST:-${DB_HOST:-mysql}}
-DB_PORT=${MYSQLPORT:-${DB_PORT:-3306}}
+
+# Handle MYSQLPORT - if it's not set or contains ${MYSQLPORT}, use default 3306
+if [ -z "$MYSQLPORT" ] || [ "$MYSQLPORT" = "\${MYSQLPORT}" ]; then
+    DB_PORT=3306
+    echo "Warning: MYSQLPORT not set or contains template literal, using default port 3306"
+else
+    DB_PORT=$MYSQLPORT
+fi
 
 # Debug: Print database connection info
-echo "Using database host: $DB_HOST"
-echo "Using database port: $DB_PORT"
+echo "=== Database Connection ==="
+echo "DB_HOST: $DB_HOST"
+echo "DB_PORT: $DB_PORT"
+echo "MYSQLHOST: ${MYSQLHOST:-Not set}"
+echo "MYSQLPORT: ${MYSQLPORT:-Not set or invalid}"
+echo "=========================="
 
 # Wait for the database to be ready
 echo "Waiting for database at $DB_HOST:$DB_PORT..."
@@ -26,12 +39,14 @@ echo "Waiting for database at $DB_HOST:$DB_PORT..."
 MAX_RETRIES=30
 COUNTER=0
 
-while ! nc -z "$DB_HOST" "$DB_PORT"; do
+while ! nc -z "$DB_HOST" "$DB_PORT" 2>/dev/null; do
   echo "Database not ready. Waiting..."
   sleep 2
   COUNTER=$((COUNTER+1))
   if [ $COUNTER -ge $MAX_RETRIES ]; then
     echo "Error: Could not connect to database after $MAX_RETRIES attempts"
+    echo "DB_HOST: $DB_HOST"
+    echo "DB_PORT: $DB_PORT"
     exit 1
   fi
 done

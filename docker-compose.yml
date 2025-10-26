@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  # Database Service
+  db:
+    image: mysql:8.0
+    container_name: paxform-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-paxform}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-paxform_root}
+      MYSQL_USER: ${MYSQL_USER:-paxform}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-paxform}
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+    networks:
+      - paxform-network
+
+  # Nginx Service
+  nginx:
+    image: nginx:alpine
+    container_name: paxform-nginx
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8000}:80"
+    volumes:
+      - ./backend/public:/var/www/public
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      php:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - paxform-network
+
+  # PHP Service
+  php:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: paxform-php
+    environment:
+      DB_CONNECTION: ${DB_CONNECTION:-mysql}
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_DATABASE: ${DB_DATABASE:-paxform}
+      DB_USERNAME: ${DB_USERNAME:-paxform}
+      DB_PASSWORD: ${DB_PASSWORD:-paxform}
+      APP_ENV: ${APP_ENV:-production}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_URL: ${APP_URL:-http://localhost}
+    volumes:
+      - ./backend:/var/www
+    working_dir: /var/www
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "php", "artisan", "db:monitor"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - paxform-network
+
+  # Frontend Service (Production build)
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/node/Dockerfile
+    container_name: paxform-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - php
+    networks:
+      - paxform-network
+
+# Development network
+networks:
+  paxform-network:
+    driver: bridge
+
+# Volumes
+volumes:
+  dbdata:
+    driver: local

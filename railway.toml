@@ -1,0 +1,37 @@
+# Railway configuration file
+[build]
+  builder = "nixpacks"
+  buildCommand = "cd frontend && npm install && npm run build"
+  startCommand = "docker-compose up --build -d"
+  nixpacksPlan = """
+    [phases.setup]
+    nixPkgs = ['nodejs-18.x', 'yarn']
+    
+    [phases.install]
+    cmds = ["cd frontend && npm install"]
+    
+    [phases.build]
+    cmds = ["cd frontend && npm run build"]
+  """
+
+[deploy]
+  startCommand = "docker-compose up -d"
+  healthcheckPath = "/"
+  healthcheckTimeout = 100
+  restartPolicyType = "on_failure"
+  restartPolicyMaxRetries = 3
+
+# Environment variables
+[environments]
+  [environments.production]
+    NODE_ENV = "production"
+    VITE_API_URL = "https://your-api-url.railway.app"
+    PORT = 80
+    
+    # Database configuration
+    DB_CONNECTION = "mysql"
+    DB_HOST = "${RAILWAY_MYSQLHOST}"
+    DB_PORT = "${RAILWAY_MYSQLPORT}"
+    DB_DATABASE = "${RAILWAY_MYSQLDATABASE}"
+    DB_USERNAME = "${RAILWAY_MYSQLUSER}"
+    DB_PASSWORD = "${RAILWAY_MYSQLPASSWORD}"

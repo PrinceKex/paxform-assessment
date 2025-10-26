@@ -1,0 +1,14 @@
+.field-item-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.field-item-button:active {
+  cursor: grabbing !important;
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.field-item-button:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}

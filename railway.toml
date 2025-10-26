@@ -6,7 +6,7 @@
   
   [build.nixpacksPlan]
   [build.nixpacksPlan.phases.setup]
-  nixPkgs = ["nodejs-20", "yarn"]
+  nixPkgs = ["nodejs_20", "yarn"]
   
   [build.nixpacksPlan.phases.install]
   cmds = ["cd frontend && npm install"]

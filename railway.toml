@@ -22,7 +22,7 @@ builder = "DOCKER"
 dockerfilePath = "backend/Dockerfile"
 
 [backend.deploy]
-startCommand = "sh /usr/local/bin/start.sh"
+startCommand = "sh /var/www/start.sh"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 30
 

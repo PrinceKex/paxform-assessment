@@ -31,17 +31,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Copy composer.json first
-COPY composer.json ./
-
-# Copy composer.lock if it exists, otherwise create an empty one
-RUN if [ -f composer.lock ]; then cp composer.lock .; else touch composer.lock; fi
+# Copy all files from the backend directory (build context)
+COPY . .
 
 # Install production dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts
-
-# Copy the rest of the application
-COPY . .
 
 # Set file permissions
 RUN chown -R www-data:www-data /var/www \

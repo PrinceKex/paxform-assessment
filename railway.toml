@@ -1,30 +1,33 @@
-# Railway configuration for Docker-based deployment
+# Root configuration
+[build]
+  builder = "DOCKER"
+  dockerfilePath = "backend/Dockerfile"
 
 # Frontend service
 [frontend]
 name = "paxform-frontend"
 
 [frontend.build]
-builder = "DOCKER"
-dockerfilePath = "frontend/Dockerfile"
+  builder = "DOCKER"
+  dockerfilePath = "frontend/Dockerfile"
 
 [frontend.deploy]
-startCommand = "/usr/sbin/nginx -g 'daemon off;'"
-healthcheckPath = "/health"
-healthcheckTimeout = 30
+  startCommand = "/usr/sbin/nginx -g 'daemon off;'"
+  healthcheckPath = "/health"
+  healthcheckTimeout = 30
 
 # Backend service
 [backend]
 name = "paxform-backend"
 
 [backend.build]
-builder = "DOCKER"
-dockerfilePath = "backend/Dockerfile"
+  builder = "DOCKER"
+  dockerfilePath = "backend/Dockerfile"
 
 [backend.deploy]
-startCommand = "sh /var/www/start.sh"
-healthcheckPath = "/api/health"
-healthcheckTimeout = 30
+  startCommand = "sh /var/www/start.sh"
+  healthcheckPath = "/api/health"
+  healthcheckTimeout = 30
 
 # Environment variables
 [environments]

@@ -1,4 +1,6 @@
-# Railway configuration for monorepo with Dockerfiles
+[build]
+  builder = "NIXPACKS"
+  buildCommand = "echo 'Using Nixpacks for build'"
 
 # Frontend service
 [frontend]
@@ -6,8 +8,7 @@ name = "paxform-frontend"
 root = "frontend"
 
 [frontend.build]
-builder = "DOCKERFILE"
-dockerfilePath = "frontend/Dockerfile"
+builder = "NIXPACKS"
 
 [frontend.deploy]
 startCommand = "/usr/sbin/nginx -g 'daemon off;'"
@@ -20,8 +21,7 @@ name = "paxform-backend"
 root = "backend"
 
 [backend.build]
-builder = "DOCKERFILE"
-dockerfilePath = "backend/Dockerfile"
+builder = "NIXPACKS"
 
 [backend.deploy]
 startCommand = "sh /var/www/start.sh"

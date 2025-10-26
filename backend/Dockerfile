@@ -10,39 +10,47 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libzip-dev \
+    libicu-dev \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libwebp-dev \
+    libxpm-dev \
     netcat-openbsd  # For database connection check
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm \
+    && docker-php-ext-install -j$(nproc) pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache
 
-# Get latest Composer
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
 WORKDIR /var/www
 
-# Copy existing application directory contents
-COPY . /var/www
+# Copy application files
+COPY . .
 
 # Install production dependencies
-RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts
 
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+# Set file permissions
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 755 /var/www/storage \
+    && chmod -R 755 /var/www/bootstrap/cache
 
-# Copy start script and make it executable
-COPY start.sh /var/www/
-RUN chmod +x /var/www/start.sh
+# Copy and set up start script
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
-# Set working directory and permissions
+# Set working directory
 WORKDIR /var/www
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/start.sh
-
-# Start the application
-CMD ["/var/www/start.sh"]
 
 # Expose port 9000
 EXPOSE 9000
+
+# Start the application
+CMD ["/usr/local/bin/start.sh"]

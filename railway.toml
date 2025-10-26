@@ -1,6 +1,5 @@
 [build]
   builder = "NIXPACKS"
-  buildCommand = "echo 'Using Nixpacks for build'"
 
 # Frontend service
 [frontend]
@@ -10,7 +9,7 @@ root = "frontend"
 [frontend.build]
 builder = "NIXPACKS"
 
-# Tell Nixpacks how to start the frontend
+# Tell Nixpacks how to build the frontend
 [frontend.build.nixpacks]
   [frontend.build.nixpacks.phases.setup]
   nixPkgs = ["nodejs"]
@@ -20,9 +19,11 @@ builder = "NIXPACKS"
   
   [frontend.build.nixpacks.phases.build]
   cmds = ["npm run build"]
+  
+  [frontend.build.nixpacks.start]
+  cmd = "npx serve --single --listen $PORT build"
 
 [frontend.deploy]
-startCommand = "npx serve -s build -l $PORT"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 
@@ -34,19 +35,23 @@ root = "backend"
 [backend.build]
 builder = "NIXPACKS"
 
-# Tell Nixpacks how to start the backend
+# Tell Nixpacks how to build the backend
 [backend.build.nixpacks]
   [backend.build.nixpacks.phases.setup]
   nixPkgs = ["php82", "php82Extensions.composer", "php82Extensions.pdo_mysql", "php82Extensions.mbstring", "php82Extensions.gd"]
   
   [backend.build.nixpacks.phases.install]
-  cmds = ["composer install --no-dev --optimize-autoloader"]
+  cmds = [
+    "composer install --no-dev --optimize-autoloader",
+    "php artisan config:cache",
+    "php artisan route:cache",
+    "php artisan view:cache"
+  ]
   
-  [backend.build.nixpacks.phases.build]
-  cmds = ["php artisan config:cache", "php artisan route:cache", "php artisan view:cache"]
+  [backend.build.nixpacks.start]
+  cmd = "php artisan serve --host 0.0.0.0 --port $PORT"
 
 [backend.deploy]
-startCommand = "php-fpm"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 30
 

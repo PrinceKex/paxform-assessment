@@ -19,6 +19,9 @@ COPY healthcheck.sh /usr/local/bin/healthcheck.sh
 ENV NGINX_PORT=80
 ENV NGINX_HOST=0.0.0.0
 
+# Install wget for health check
+RUN apk add --no-cache wget
+
 # Make health check script executable
 RUN chmod +x /usr/local/bin/healthcheck.sh
 

@@ -2,7 +2,6 @@
 [build]
   builder = "nixpacks"
   buildCommand = "cd frontend && npm install && npm run build"
-  startCommand = "docker-compose up --build -d"
   
   [build.nixpacksPlan]
   [build.nixpacksPlan.phases.setup]
@@ -15,7 +14,7 @@
   cmds = ["cd frontend && npm run build"]
 
 [deploy]
-  startCommand = "docker-compose up -d"
+  startCommand = "nginx -g 'daemon off;'"
   healthcheckPath = "/health"
   healthcheckTimeout = 30
   restartPolicyType = "on_failure"

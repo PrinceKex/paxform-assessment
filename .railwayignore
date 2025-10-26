@@ -1,0 +1,7 @@
+# Ignore root package.json to prevent Railpack from detecting this as a Node.js project
+/package.json
+/package-lock.json
+
+# Ignore frontend and backend directories (they have their own build configurations)
+/frontend
+/backend

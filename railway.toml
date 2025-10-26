@@ -10,8 +10,19 @@ root = "frontend"
 [frontend.build]
 builder = "NIXPACKS"
 
+# Tell Nixpacks how to start the frontend
+[frontend.build.nixpacks]
+  [frontend.build.nixpacks.phases.setup]
+  nixPkgs = ["nodejs"]
+  
+  [frontend.build.nixpacks.phases.install]
+  cmds = ["npm ci"]
+  
+  [frontend.build.nixpacks.phases.build]
+  cmds = ["npm run build"]
+
 [frontend.deploy]
-startCommand = "/usr/sbin/nginx -g 'daemon off;'"
+startCommand = "npx serve -s build -l $PORT"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 
@@ -23,8 +34,19 @@ root = "backend"
 [backend.build]
 builder = "NIXPACKS"
 
+# Tell Nixpacks how to start the backend
+[backend.build.nixpacks]
+  [backend.build.nixpacks.phases.setup]
+  nixPkgs = ["php82", "php82Extensions.composer", "php82Extensions.pdo_mysql", "php82Extensions.mbstring", "php82Extensions.gd"]
+  
+  [backend.build.nixpacks.phases.install]
+  cmds = ["composer install --no-dev --optimize-autoloader"]
+  
+  [backend.build.nixpacks.phases.build]
+  cmds = ["php artisan config:cache", "php artisan route:cache", "php artisan view:cache"]
+
 [backend.deploy]
-startCommand = "sh /var/www/start.sh"
+startCommand = "php-fpm"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 30
 

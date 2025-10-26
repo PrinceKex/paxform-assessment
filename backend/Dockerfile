@@ -43,8 +43,8 @@ RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/bootstrap/cache
 
 # Copy and set up start script
-COPY start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
+COPY start.sh /var/www/start.sh
+RUN chmod +x /var/www/start.sh
 
 # Set working directory
 WORKDIR /var/www
@@ -53,4 +53,4 @@ WORKDIR /var/www
 EXPOSE 9000
 
 # Start the application
-CMD ["/usr/local/bin/start.sh"]
+CMD ["/var/www/start.sh"]

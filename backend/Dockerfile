@@ -31,8 +31,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Copy only composer files first to leverage Docker cache
-COPY composer.json composer.lock ./
+# Copy composer.json first
+COPY composer.json ./
+
+# Copy composer.lock if it exists, otherwise create an empty one
+RUN if [ -f composer.lock ]; then cp composer.lock .; else touch composer.lock; fi
 
 # Install production dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts

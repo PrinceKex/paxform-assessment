@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
@@ -8,11 +8,10 @@ RUN npm run build
 
 # Production stage
 FROM nginx:alpine
+# Copy built assets from build stage
 COPY --from=build /app/dist /usr/share/nginx/html
-# Use the custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy the custom nginx configuration
-COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Set environment variables
 ENV NGINX_PORT=80

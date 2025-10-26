@@ -12,25 +12,29 @@ echo "=== Environment Variables ==="
 printenv | sort
 echo "==========================="
 
-# Set database connection details
-# First try Railway's default MySQL variables, then fall back to standard ones
-DB_HOST=${MYSQLHOST:-${DB_HOST:-mysql}}
-
-# Handle MYSQLPORT - if it's not set or contains ${MYSQLPORT}, use default 3306
-if [ -z "$MYSQLPORT" ] || [ "$MYSQLPORT" = "\${MYSQLPORT}" ]; then
-    DB_PORT=3306
-    echo "Warning: MYSQLPORT not set or contains template literal, using default port 3306"
-else
-    DB_PORT=$MYSQLPORT
-fi
+# Set database connection details from Railway's environment variables
+DB_CONNECTION=mysql
+DB_HOST=${MYSQLHOST:-mysql}
+DB_PORT=${MYSQLPORT:-3306}
+DB_DATABASE=${MYSQLDATABASE:-paxform}
+DB_USERNAME=${MYSQLUSER:-root}
+DB_PASSWORD=${MYSQLPASSWORD:-}
 
 # Debug: Print database connection info
 echo "=== Database Connection ==="
+echo "DB_CONNECTION: $DB_CONNECTION"
 echo "DB_HOST: $DB_HOST"
 echo "DB_PORT: $DB_PORT"
+echo "DB_DATABASE: $DB_DATABASE"
+echo "DB_USERNAME: $DB_USERNAME"
 echo "MYSQLHOST: ${MYSQLHOST:-Not set}"
-echo "MYSQLPORT: ${MYSQLPORT:-Not set or invalid}"
+echo "MYSQLPORT: ${MYSQLPORT:-Not set, using default 3306}"
+echo "MYSQLUSER: ${MYSQLUSER:-Not set, using default root}"
+echo "MYSQLDATABASE: ${MYSQLDATABASE:-Not set, using default paxform}"
 echo "=========================="
+
+# Export the variables for Laravel to use
+export DB_CONNECTION DB_HOST DB_PORT DB_DATABASE DB_USERNAME DB_PASSWORD
 
 # Wait for the database to be ready
 echo "Waiting for database at $DB_HOST:$DB_PORT..."

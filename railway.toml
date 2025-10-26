@@ -19,11 +19,11 @@ name = "paxform-frontend"
 # Backend service
 [backend]
 name = "paxform-backend"
+root = "backend"  # Set build context to backend directory
 
 [backend.build]
   builder = "DOCKERFILE"
-  dockerfilePath = "backend/Dockerfile"
-  buildCommand = "docker build -f backend/Dockerfile -t paxform-backend ."
+  dockerfilePath = "Dockerfile"  # Relative to backend directory
 
 [backend.deploy]
   startCommand = "sh /var/www/start.sh"

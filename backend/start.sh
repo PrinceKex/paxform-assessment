@@ -2,12 +2,12 @@
 set -e
 
 # Set default values if not provided
-DB_HOST=${DB_HOST:-mysql}
-DB_PORT=${DB_PORT:-3306}
+DB_HOST=${DB_HOST:-${RAILWAY_MYSQLHOST:-mysql}}
+DB_PORT=${DB_PORT:-${RAILWAY_MYSQLPORT:-3306}}
 
 # Wait for the database to be ready
 echo "Waiting for database at $DB_HOST:$DB_PORT..."
-until nc -z $DB_HOST $DB_PORT; do
+until nc -z "$DB_HOST" "$DB_PORT"; do
   echo "Database not ready. Waiting..."
   sleep 2
 done
